@@ -92,6 +92,7 @@ const RegisterForm = () => {
           warna={"bg-DARKBLUE05"}
           title={"Daftar"}
           onClick={register}
+          idtest={"register"}
         ></Button>
         <p className="text-sm pt-12 text-center mb-20 lg:mb-0">
           Sudah punya akun?{" "}

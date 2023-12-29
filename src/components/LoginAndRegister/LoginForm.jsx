@@ -1,3 +1,4 @@
+import React from "react";
 import Button from "../Button/Button";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -27,7 +28,7 @@ const LoginForm = () => {
     }
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (reloadFunction) => {
     try {
       if (emailOrPhone == "" && password == "") {
         setFailMail(true);
@@ -65,7 +66,7 @@ const LoginForm = () => {
         setEmailOrPhone("");
         setPassword("");
         navigate("/home");
-        window.location.reload();
+        reloadFunction();
       }
     } catch (err) {
       console.log(err);
@@ -73,8 +74,13 @@ const LoginForm = () => {
       setIsLoginDone(true);
     }
   };
+
+  const handleClickSubmit = () => {
+    onSubmit(() => window.location.reload());
+  };
+
   return (
-    <section className="relative">
+    <section className="relative" data-testid="login-form">
       <div className="" onSubmit={onSubmit}>
         <h1 className="font-bold pb-6 text-2xl text-DARKBLUE05">Masuk</h1>
         <div className="pb-4">
@@ -90,6 +96,7 @@ const LoginForm = () => {
             } border-2 border-neutral-200 text-sm rounded-2xl px-4 py-3 w-full`}
             value={emailOrPhone}
             onChange={(e) => setEmailOrPhone(e.target.value)}
+            data-testid="input-mail-phone"
           />
         </div>
         <div className="pb-4">
@@ -98,6 +105,7 @@ const LoginForm = () => {
             <label
               className="float-right text-xs font-medium text-DARKBLUE05 cursor-pointer"
               onClick={() => navigate("/resettautan")}
+              data-testid="btn-resetpw"
             >
               Lupa Kata Sandi
             </label>
@@ -113,16 +121,21 @@ const LoginForm = () => {
             } border-2 border-neutral-200 text-sm rounded-2xl px-4 py-3 w-full`}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            data-testid="input-password"
           />
         </div>
-        <button type="button" className="w-full" onClick={onSubmit}>
-          <Button warna={"bg-DARKBLUE05"} title={"Masuk"}></Button>
-        </button>
+        <Button
+          warna={"bg-DARKBLUE05"}
+          title={"Masuk"}
+          onClick={handleClickSubmit}
+          idtest={"login"}
+        ></Button>
         <p className="text-sm pt-12 text-center">
           Belum punya akun?{" "}
           <button
             className="text-DARKBLUE05 font-bold"
             onClick={() => navigate("/Register")}
+            data-testid="button-register"
           >
             {" "}
             Daftar di sini
