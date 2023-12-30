@@ -28,7 +28,7 @@ const LoginForm = () => {
     }
   };
 
-  const onSubmit = async (reloadFunction) => {
+  const onSubmit = async () => {
     try {
       if (emailOrPhone == "" && password == "") {
         setFailMail(true);
@@ -65,8 +65,8 @@ const LoginForm = () => {
         document.cookie = `token=${data.data.data.accessToken}`;
         setEmailOrPhone("");
         setPassword("");
-        navigate("/home");
-        reloadFunction();
+        navigate("/");
+        window.location.reload();
       }
     } catch (err) {
       console.log(err);
@@ -74,11 +74,6 @@ const LoginForm = () => {
       setIsLoginDone(true);
     }
   };
-
-  const handleClickSubmit = () => {
-    onSubmit(() => window.location.reload());
-  };
-
   return (
     <section className="relative" data-testid="login-form">
       <div className="" onSubmit={onSubmit}>
@@ -124,12 +119,13 @@ const LoginForm = () => {
             data-testid="input-password"
           />
         </div>
-        <Button
-          warna={"bg-DARKBLUE05"}
-          title={"Masuk"}
-          onClick={handleClickSubmit}
-          idtest={"login"}
-        ></Button>
+        <button type="button" className="w-full" onClick={onSubmit}>
+          <Button
+            warna={"bg-DARKBLUE05"}
+            title={"Masuk"}
+            idtest={"login"}
+          ></Button>
+        </button>
         <p className="text-sm pt-12 text-center">
           Belum punya akun?{" "}
           <button

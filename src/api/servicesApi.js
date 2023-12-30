@@ -1,11 +1,10 @@
-const BASH_URL = "https://binar-project-production.up.railway.app";
+const BASH_URL = import.meta.env.VITE_REACT_APP_BASE_URL;
 import axios from "axios";
 import getCookieValue from "./getCookie";
 const tokenCookie = getCookieValue("token");
 
 export const postLogin = async (payload) => {
   try {
-    console.log(payload);
     const response = await axios.post(`${BASH_URL}/auth/login`, payload);
     return response;
   } catch (error) {

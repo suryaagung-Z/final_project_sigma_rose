@@ -10,9 +10,9 @@ const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  
   const register = async () => {
     try {
-      console.log({ name, email, phone, password });
       const response = await axios.post(
         `${SERVER_URL}/auth/register`,
         JSON.stringify({ name, email, phone, password }),
@@ -24,10 +24,11 @@ const RegisterForm = () => {
       );
 
       if (response.status === 200) {
-        console.log("Registrasi sukses!");
+        
         navigate("/Verifikasi", {
           state: { formData: { name, email, phone, password } },
         });
+        localStorage.setItem('email' , email)
       } else {
         console.log("Registrasi gagal. Kode status:", response.status);
       }

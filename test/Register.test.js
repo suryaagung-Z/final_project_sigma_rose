@@ -45,6 +45,20 @@ describe("Register Component", () => {
     });
   });
 
+  // it("renders logos", async () => {
+  //   await act(async () => {
+  //     render(
+  //       <BrowserRouter>
+  //         <Register />
+  //       </BrowserRouter>
+  //     );
+  //   });
+
+  //   await waitFor(() => {
+  //     expect(screen.getByTestId("register-form")).toBeInTheDocument();
+  //   });
+  // });
+
   it("logs an error message on registration failure", async () => {
     axios.post.mockRejectedValue({ response: { status: 500 } });
 

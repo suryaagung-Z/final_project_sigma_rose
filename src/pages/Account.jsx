@@ -9,6 +9,7 @@ import { consumeUserApi } from '../api/user';
 import { consumeOrderApi } from '../api/order';
 import AllertReset from '../components/Allert/AllertReset';
 import fire from '../lib/firebaseInit'
+import setCookieValue from '../api/setCookie';
 import { getStorage, ref, uploadBytes ,getDownloadURL , } from "firebase/storage";
 
 const Account = () => {
@@ -32,8 +33,6 @@ const Account = () => {
 
         currentUserAPI();
         orderUserAPI();
-        updateUserProfile();
-        updateUserPass();
         setAlertTime();
 
     })
@@ -77,6 +76,8 @@ const Account = () => {
                     country: country,
                     city: city
                 }).then((res) => {
+                    setCookieValue('token',res.data.accessToken)
+                    window.location.reload()
                     if (res.status == 'OK') {
                         setAlertAction(true)
                         setAlertStatus(true)
@@ -89,24 +90,27 @@ const Account = () => {
         // eslint-disable-next-line no-dupe-else-if
         } else if(imageProfile != '') {
             if(name != '' && email != '' && phone != '' && country != '' && city != '' && imageProfile != ''){
-                await uploadImage(imageProfile)
-
-                await consumeUserApi.updateUser({
-                    name: name,
-                    email: email,
-                    phone: phone,
-                    image : imageUp,
-                    country: country,
-                    city: city
-                }).then((res) => {
-                    if (res.status == 'OK') {
-                        setAlertAction(true)
-                        setAlertStatus(true)
-                    } else {
-                        setAlertAction(true)
-                        setAlertStatus(false)
-                    }
+                await uploadImage(imageProfile).then(img => {             
+                    consumeUserApi.updateUser({
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        image : img,
+                        country: country,
+                        city: city
+                    }).then((res) => {
+                        if (res.status == 'OK') {
+                            setCookieValue('token',res.data.accessToken)
+                            window.location.reload()
+                            setAlertAction(true)
+                            setAlertStatus(true)
+                        } else {
+                            setAlertAction(true)
+                            setAlertStatus(false)
+                        }
+                    })
                 })
+
             }
         }else {
             setAlertAction(true)
@@ -120,12 +124,13 @@ const Account = () => {
         const storageRef = ref(storage, `image-${Date.now()}.jpg`);
         
         try {
-            fetch(imageProfile)
+            return fetch(imageProfile)
             .then(response => response.blob())
             .then(async (blob) => {
                 const snapshot = await uploadBytes(storageRef, blob);
                 const imageUrl = await getDownloadURL(snapshot.ref);
                 setImageUp(imageUrl);
+                return imageUrl;
             })
 
         } catch (error_1) {
@@ -137,26 +142,23 @@ const Account = () => {
         const oldPass = document.getElementById('old-pass').value;
         const newPass = document.getElementById('new-pass').value;
         const newPassAgain = document.getElementById('new-pass-again').value;
-        const updateButton = document.getElementById('up-pass-button');
 
-        updateButton.onclick = () => {
-            if (newPass === newPassAgain) {
-                consumeUserApi.updatePassword({
-                    password: oldPass,
-                    newPassword: newPassAgain
-                }).then((res) => {
-                    if (res.status == 'OK') {
-                        setAlertAction(true)
-                        setAlertStatus(true)
-                    } else {
-                        setAlertAction(true)
-                        setAlertStatus(false)
-                    }
-                })
-            } else {
-                setAlertAction(true)
-                setAlertStatus(false)
-            }
+        if (newPass === newPassAgain) {
+            consumeUserApi.updatePassword({
+                password: oldPass,
+                newPassword: newPassAgain
+            }).then((res) => {
+                if (res.status == 'OK') {
+                    setAlertAction(true)
+                    setAlertStatus(true)
+                } else {
+                    setAlertAction(true)
+                    setAlertStatus(false)
+                }
+            })
+        } else {
+            setAlertAction(true)
+            setAlertStatus(false)
         }
 
     }
@@ -206,7 +208,7 @@ const Account = () => {
 
     const handleExit = () => {
         document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        navigate("/home")
+        navigate("/")
     }
 
     return (
@@ -317,7 +319,7 @@ const Account = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button id='up-profile-button'>
+                                            <button id='up-profile-button' data-testid="up-profile-button" onClick={()=>{updateUserProfile()}}>
                                                 <div className='bg-DARKBLUE05 p-3 rounded-full'>
                                                     <p className='text-lg text-white font-bold'>Simpan Profil Saya</p>
                                                 </div>
@@ -350,7 +352,7 @@ const Account = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <button id='up-pass-button' onClick={()=>{updateUserProfile()}} >
+                                        <button id='up-pass-button' onClick={()=>{updateUserPass()}} >
                                             <div className='bg-DARKBLUE05 p-3 rounded-full'>
                                                 <p className='text-lg text-white font-bold'>Ubah Password</p>
                                             </div>

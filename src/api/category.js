@@ -1,4 +1,4 @@
-const BASH_URL = "https://binar-project-production.up.railway.app";
+const BASH_URL = import.meta.env.VITE_REACT_APP_BASE_URL;
 import axios from 'axios'
 
 

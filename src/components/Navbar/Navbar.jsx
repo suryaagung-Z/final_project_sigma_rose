@@ -132,7 +132,7 @@ const Navbar = () => {
             <nav className="w-full bg-DARKBLUE05 h-[100px]">
                 <div className='lg:grid lg:place-content-center px-6 lg:px-0'>
                     <div className='flex w-full lg:w-[1024px] py-5 items-center justify-between lg:justify-start'>
-                        <button onClick={() => navigate("/home")}>
+                        <button onClick={() => navigate("/")}>
                             <img src={logo} alt="" className='my-auto w-[183.2px] h-[52.6px] mt-1 lg:mt-0' />
                         </button>
                         <button onClick={openDrawer} className='lg:hidden bg-white bg-opacity-20 w-12 h-12 rounded-2xl flex justify-center items-center'>

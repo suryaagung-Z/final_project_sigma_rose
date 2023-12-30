@@ -1,14 +1,22 @@
 import { Icon } from '@iconify/react';
-import ProgressCard from "../components/CourseCard/ProgressCard";
 import Footer from "../components/Footer/Footer"
-import FilterPlanProgress from "../components/Filter/FilterPlanProgress";
+import ProgressCard from "../components/CourseCard/ProgressCard";
 import { updateId } from '../store/moduleCourses';
+import {
+    Dialog,
+    DialogHeader,
+    DialogBody,
+    Typography,
+} from "@material-tailwind/react";
+import FilterPlanProgress from "../components/Filter/FilterPlanProgress";
 import { useNavigate } from "react-router-dom"
+import { useEffect, useRef, useState } from "react";
+import { useDispatch } from 'react-redux';
+import AnimatedButton from '../components/Button/AnimatedButton';
 import SidebarFilter from "../components/Filter/SidebarFilter";
-import { useEffect, useState } from "react";
+import getCookieValue from "../api/getCookie";
 import { consumeCourseTrackingsApi } from '../api/courseTrackings';
 import { consumeUserApi } from "../api/user";
-import { useDispatch } from 'react-redux';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css'
 
@@ -22,55 +30,78 @@ const CourseTracking = () => {
     const [filterColor2, setFilterColor2] = useState(null)
     const [filterColor3, setFilterColor3] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [openFilter, setOpenFilter] = useState(false);
+    const token = getCookieValue("token")
+    const sideFilterTrackRef = useRef()
+
+    const handleOpen = () => setOpenFilter(!openFilter)
 
     useEffect(() => {
         getCurrentUserAPI();
         getCourseByOrder();
-        sideFilterFunction();
+        sideFilterValidationDOM()
     })
+    
+    const handleLogin = () => {
+        if (token === null) {
+            navigate("/login")
+        } else {
+            setOpen(!open)
+        }
+    }
 
-
-
-const getCurrentUserAPI = () => {
-    consumeUserApi.getCurrentUser().then(res => {
-        setUser(res.data)
-    })
-}
-
-const getCourseByOrder = () => {
-    if (currentCourseTrack.length <= 0) {
-        consumeCourseTrackingsApi.getCourseTrackings().then((res) => {
-            setIsLoading(true)
-            if (res.status == 'OK') {
-                setCourseTrack(res.data)
-                setCurrentCourseTrack(res.data)
-                setIsLoading(false)
-            }
+    const getCurrentUserAPI = () => {
+        consumeUserApi.getCurrentUser().then(res => {
+            setUser(res.data)
         })
-    } else {
-        return currentCourseTrack;
+    }
+
+    const getCourseByOrder = () => {
+        if (currentCourseTrack.length <= 0) {
+            consumeCourseTrackingsApi.getCourseTrackings().then((res) => {
+                setIsLoading(true)
+                if (res.status == 'OK') {
+                    const courseTrackFilter = res.data.filter( data => {
+                        return data.userId == user.id
+                    }) 
+
+                    setCourseTrack(courseTrackFilter)
+                    setCurrentCourseTrack(courseTrackFilter)
+                    setIsLoading(false)
+                }
+            })
+        } else {
+            return currentCourseTrack;
+        }
+    }
+
+
+const sideFilterValidationDOM = () => {
+    console.log()
+    if(sideFilterTrackRef.current != null){
+        sideFilterFunction()
     }
 }
 
 const sideFilterFunction = () => {
 
     const filterList = [];
-    const delFilter = document.getElementById('deleteFilter');
-    const checkList = ['uiux', 'webdev', 'android', 'datasc', 'semua', 'beginner', 'intermediate', 'advanced'];
+    const delFilter = sideFilterTrackRef.current.querySelector('#deleteFilter');
+    const checkList = ['uiux', 'pm', 'webdev', 'android', 'ios', 'datasc', 'network', 'ai', 'cloud', 'iot', 'gamedev', 'cyber', 'semua', 'beginner', 'intermediate', 'advanced'];
     const fieldClass = document.getElementById('fieldClass');
-    const searchClassButton = document.getElementById('searchClassButton');
+    const filterButton = sideFilterTrackRef.current.querySelector(`#filterButton`);
 
     checkList.map((data) => {
-        const checkBoxValue = document.getElementById(data).value;
+        const checkBoxValue = sideFilterTrackRef.current.querySelector(`#${data}`).value;
 
-        if (document.getElementById(data).checked) {
+        if (sideFilterTrackRef.current.querySelector(`#${data}`).checked) {
             if (filterList.indexOf(checkBoxValue) <= -1) {
                 filterList.push(checkBoxValue)
             }
         }
 
-        document.getElementById(data).onclick = () => {
-            if (document.getElementById(data).checked) {
+        sideFilterTrackRef.current.querySelector(`#${data}`).onclick = () => {
+            if (sideFilterTrackRef.current.querySelector(`#${data}`).checked) {
                 if (filterList.indexOf(checkBoxValue) <= -1) {
                     filterList.push(checkBoxValue)
                 }
@@ -84,45 +115,45 @@ const sideFilterFunction = () => {
 
     delFilter.onclick = () => {
         checkList.map((data) => {
-            if (document.getElementById(data).checked) {
-                document.getElementById(data).addEventListener('click', function () {
+            if (sideFilterTrackRef.current.querySelector(`#${data}`).checked) {
+                sideFilterTrackRef.current.querySelector(`#${data}`).addEventListener('click', function () {
                 })
-                document.getElementById(data).click();
+                sideFilterTrackRef.current.querySelector(`#${data}`).click();
             }
             filterList.length = 0
             setCourseTrack(currentCourseTrack)
         })
     }
 
-    searchClassButton.onclick = () => {
-
+    filterButton.onclick = () => {
         if (fieldClass.value != '') {
             filterList.push(fieldClass.value)
         }
 
         const filteredDone = currentCourseTrack.filter((data) => {
-            const initiateData = `${data.course.category.title + ' ' + data.course.level.toLowerCase() + ' ' + data.course.title + ' ' + data.course.description}`
+            const initiateData = `${data.course.category.title + ' ' + data.course.level.toLowerCase() + ' ' + data.title + ' ' + data.description}`
             const filterChecked = filterList.map((value) => {
                 return initiateData.includes(value);
             })
 
-        
             if (filterChecked.includes(true)) {
-                return data;
-            }
-
-            if (fieldClass.value == '' & filterList.length == 0) {
-                return data;
-            }
-
-            if (initiateData == '') {
                 return data;
             }
         })
 
         setCourseTrack(filteredDone)
     }
+}
 
+const searchCourse = (event) => {
+    event.target.value;
+    const fieldClass = document.getElementById('fieldClass').value
+
+    const courseFiltered = currentCourseTrack.filter(( data) => {
+        return `${data.course.title + '' + data.course.category.title}`.toLowerCase().indexOf(fieldClass.toLowerCase()) > -1;
+    })
+
+    setCourseTrack(courseFiltered)
 }
 
 const filterTypeFunction = (TYPE) => {
@@ -153,27 +184,36 @@ const filterTypeFunction = (TYPE) => {
 return (
     <section className="">
         <div className="w-full bg-LIGHTBLUE">
-            <div className="grid place-content-center">
-                <div className="w-[1024px] pt-10">
-                    <div className="flex justify-between items-center mb-16">
-                        <h1 className="text-2xl font-bold">Kelas Berjalan</h1>
-                        <div className="flex gap-16 bg-white border-2 border-DARKBLUE05 rounded-full px-6 py-3">
-                            <input id='fieldClass' type="text" className="w-32 outline-none border-none" placeholder="Cari Kelas" />
-                            <button id='searchClassButton' className="bg-DARKBLUE05 flex items-center justify-center w-9 h-9 rounded-xl">
-                                <Icon icon="bx:search-alt" color="white" className="w-6 h-6" />
+            <div className="lg:grid lg:place-content-center px-10 lg:px-0">
+                <div className="w-full lg:w-[1024px] pt-10">
+                    <div className="flex flex-col md:flex-row justify-between items-center mb-4 md:mb-16">
+                        <h1 className="text-2xl font-bold mb-8 md:mb-0">Kelas Berjalan</h1>
+                        <div className='flex items-center gap-5 lg:gap-0'>
+                            <div className='flex gap-8 lg:gap-0 justify-center items-center'>
+                                <div className="flex gap-14 md:gap-16 bg-white border-2 border-DARKBLUE05 rounded-full px-6 py-3">
+                                    <input id='fieldClass' onChange={(event)=> {searchCourse(event)}} type="text" className="w-32 outline-none border-none" placeholder="Cari Kelas" />
+                                    <button className="bg-DARKBLUE05 flex items-center justify-center w-9 h-9 rounded-xl">
+                                        <Icon icon="bx:search-alt" color="white" className="w-6 h-6" />
+                                    </button>
+                                </div>
+                            </div>
+                            <button onClick={() => {handleOpen()}}>
+                                <Icon icon="mi:filter" className='lg:hidden text-DARKBLUE05 text-4xl'/>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="grid place-content-center">
-                <div className="w-[1024px] pb-20">
-                    <div className="flex gap-20">
-                        <SidebarFilter />
+            <div className="lg:grid lg:place-content-center px-4 lg:px-0">
+                <div className="w-full lg:w-[1024px] pb-20">
+                    <div  className="flex gap-20">
+                        <div ref={sideFilterTrackRef} className='w-full lg:w-1/4 hidden lg:inline'>
+                            <SidebarFilter />
+                        </div>
 
-                        <div className="w-3/4">
-                            <div className="mb-10 flex justify-between">
+                        <div className="w-full lg:w-3/4">
+                            <div className="mb-10 flex gap-4 justify-center items-center">
                                 <div onClick={() => {
                                     filterTypeFunction('')
                                 }}><FilterPlanProgress title={"All"} color={filterColor1} /></div>
@@ -192,11 +232,11 @@ return (
                                     <FilterPlanProgress title={"Complete"} color={filterColor3} />
                                 </div>
                             </div>
-                            <div className="flex flex-wrap gap-x-14 gap-y-10">
+                            <div className="flex flex-wrap gap-x-14 gap-y-10 justify-center items-center lg:justify-normal lg:items-start">
                                 {
                                     isLoading ?
                                     <SkeletonTheme baseColor="#dcdee0" >
-                                        <div className='flex flex-wrap gap-x-14 gap-y-10'>
+                                        <div className='flex flex-wrap gap-x-14 gap-y-10 justify-center items-center'>
                                             <div >
                                                 <Skeleton height={'100px'} width={'323px'}/>
                                                 <Skeleton count={3} />
@@ -247,25 +287,26 @@ return (
                                         }
 
                                         return (
-
                                             <button key={data.id} onClick={() => {
                                                 navigate("/courses/detail/unlock")
                                                 dispatch(updateId(data.course.id))
                                             }}>
-                                                <ProgressCard picture={data.course.image}
-                                                    course={data.course.category.title}
-                                                    rating={data.course.rating}
-                                                    topic={data.course.title}
-                                                    author={data.course.authorBy}
-                                                    level={data.course.level}
-                                                    module={`${data.course.module.length} Module`}
-                                                    time={
-                                                        `${data.course.module.reduce((accumulator, currentValue) => {
-                                                            return accumulator + currentValue.time;
-                                                        }, 0) / 60} Menit`
-                                                    }
-                                                    width={`${indicator}%`}
-                                                    complete={`${indicator}% Complete`} />
+                                                <AnimatedButton>
+                                                    <ProgressCard picture={data.course.image}
+                                                        course={data.course.category.title}
+                                                        rating={data.course.rating}
+                                                        topic={data.course.title}
+                                                        author={data.course.authorBy}
+                                                        level={data.course.level}
+                                                        module={`${data.course.module.length} Module`}
+                                                        time={
+                                                            `${data.course.module.reduce((accumulator, currentValue) => {
+                                                                return accumulator + currentValue.time;
+                                                            }, 0) / 60} Menit`
+                                                        }
+                                                        width={`${indicator}%`}
+                                                        complete={`${indicator}% Complete`} />
+                                                </AnimatedButton>
                                             </button>
                                         )
                                     })
@@ -277,8 +318,21 @@ return (
             </div>
         </div>
         <Footer />
+        <Dialog  open={openFilter} handler={handleOpen}>
+                <div className="flex justify-end">
+                    <button className="px-2 py-2" onClick={handleOpen}>
+                        <Icon icon="material-symbols:close" className="text-3xl" />
+                    </button>
+                </div>
+                <DialogBody  ref={sideFilterTrackRef} className="grid place-items-center text-black">
+                    <div className='h-[480px] overflow-y-scroll scrollbar scrollbar-thumb-gray-100 scrollbar-w-2 scrollbar-thumb-rounded-2xl mb-10'>
+                        <SidebarFilter/>
+                    </div>
+                </DialogBody>
+        </Dialog>
+        
     </section>
-)
-                            }
+    )
+}
 
 export default CourseTracking

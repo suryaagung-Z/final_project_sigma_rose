@@ -1,5 +1,4 @@
 import React from "react";
-
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 const AllertReset = ({ message, type }) => {

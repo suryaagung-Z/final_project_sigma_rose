@@ -6,7 +6,7 @@ import 'react-loading-skeleton/dist/skeleton.css'
 // eslint-disable-next-line react/prop-types
 const CourseTitle = ({course, rating, topic, author, level, module, time , tele }) => {
     return (
-        <div className=" py-3 w-[600px]">
+        <div className=" py-3 w-full lg:w-[600px] float-none lg:float-left">
             <div className="flex justify-between">
                 <p className="text-lg font-semibold text-DARKBLUE05">{course ?? <Skeleton width={'200px'}/>}</p>
                 <div className="flex gap-1">

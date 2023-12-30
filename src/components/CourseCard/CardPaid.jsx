@@ -33,17 +33,17 @@ const CardPaid = ({picture, course, rating, topic, author, level, module, time, 
                     </div>
                 </div>
                 {isPaid ? (
-                        <div className="bg-SUCCESS text-white flex justify-between px-4 py-1 mt-3" style={{ borderRadius: '15px', width: '90px' }}>
+                        <div className="bg-SUCCESS text-white flex justify-between px-4 py-1 mt-3" style={{ borderRadius: '15px', width: '120px' }}>
                             <div className="flex gap-1">
                                 <Icon icon="fluent:premium-12-filled" className="text-lg" />
-                                <p className="text-sm font-medium">Paid</p>
+                                <p className="text-sm font-medium">Dibayar</p>
                             </div>
                         </div>
                     ) : (
                         <div className="bg-WARNING text-white flex justify-between px-4 py-1 mt-3" style={{ borderRadius: '15px', width: '200px' }}>
                             <div className="flex gap-1">
                                 <Icon icon="fluent:premium-12-filled" className="text-lg" />
-                                <p className="text-sm font-medium">Wait for Approved</p>
+                                <p className="text-sm font-medium">Tunggu Disetujui</p>
                             </div>
                         </div>
                 )}

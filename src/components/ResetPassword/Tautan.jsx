@@ -26,7 +26,7 @@ const Tautan = () => {
   const ipMail = useRef(null);
   const sendMail = () => {
     const email = ipMail.current.value;
-    
+    console.log(email)
     consumeUserApi.resetPassword({email : email}).then(res => {
       if(res.status == 'OK'){
           setAlertAction(true)

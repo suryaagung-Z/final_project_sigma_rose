@@ -41,7 +41,7 @@ const InputTwo = () => {
         if(fieldPass === fieldPassValidation ){
           consumeUserApi.resetPasswordValidation( { password : fieldPassValidation } , token ).then(res => {
             if(res.status == 'OK'){
-              window.location.href = 'http://localhost:3000/login'
+              window.location.href = 'https://craftiq.up.railway.app/login'
             }else{
               setAlertAction(true)
               setAlertStatus(false)
