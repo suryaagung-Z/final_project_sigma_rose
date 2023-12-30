@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "jest --coverage",
     "test:register": "jest --config=jest.config.cjs test/Register.test.js --coverage",
-    "test:login": "jest --config=jest.config.cjs test/Login.test.js --coverage"
+    "test:login": "jest --config=jest.config.cjs test/Login.test.js --coverage",
+    "test:reset": "jest --config=jest.config.cjs test/ResetPassword.test.js --coverage"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.0.1",

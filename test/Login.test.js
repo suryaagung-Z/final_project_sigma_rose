@@ -7,7 +7,6 @@ import {
   waitFor,
   act,
 } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import Login from "../src/pages/Login";
 import LoginForm from "../src/components/LoginAndRegister/LoginForm";
 import { BrowserRouter } from "react-router-dom";
@@ -30,6 +29,10 @@ const mockNavigate = jest.fn();
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock("../src/api/utils", () => ({
+  getBaseUrl: () => "https://binar-project-production.up.railway.app",
 }));
 
 describe("Login Component", () => {
@@ -84,7 +87,7 @@ describe("Login Component", () => {
     });
 
     await act(async () => {
-      userEvent.click(screen.getByTestId("button-login"));
+      fireEvent.click(screen.getByTestId("button-login"));
     });
 
     await waitFor(() => {
@@ -102,7 +105,7 @@ describe("Login Component", () => {
     });
 
     await act(async () => {
-      userEvent.click(screen.getByTestId("button-login"));
+      fireEvent.click(screen.getByTestId("button-login"));
     });
     await waitFor(() => {
       expect(screen.getByTestId("alertreset")).toBeInTheDocument();
